@@ -35,3 +35,7 @@ class ProjectMetricPivotalTrackerTimeEstimate
   end
 
 end
+
+json.load(response)
+
+p = ProjectMetricPivotalTrackerVelocity.new({:project => 1546107, :token => 'c81465eccc3a3765f8974d7a3c3c95b9'})

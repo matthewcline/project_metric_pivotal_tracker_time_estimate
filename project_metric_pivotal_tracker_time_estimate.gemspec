@@ -33,4 +33,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.13"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
+
+  spec.add_dependency "tracker_api", "~> 0.2.0"
+  spec.add_dependency "rest-client"
+  spec.add_dependency "rasem", "~>0.6.1"
 end
