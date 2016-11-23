@@ -3,6 +3,7 @@ require "rest-client"
 require "tracker_api"
 require "rasem"
 require "date"
+require "gchart"
 
 class ProjectMetricPivotalTrackerVelocity
   attr_reader :raw_data
@@ -58,8 +59,6 @@ class ProjectMetricPivotalTrackerVelocity
     # Delivered = Opentruct.new(:estimate, :time_delivered)
     lstEstimateAndTime = project.stories(with_state: :accepted||:delivered||:finished).map do |story|
       if story.estimate
-        puts story.estimate
-        puts (story.updated_at.to_date - story.created_at.to_date).round
         { :estimate => story.estimate, :time_difference => (story.updated_at.to_date - story.created_at.to_date).round }
       else
         { :estimate => 1, :time_delivered => (story.updated_at.to_date - story.created_at.to_date).round }
@@ -79,11 +78,9 @@ class ProjectMetricPivotalTrackerVelocity
           @time_estimates[points] = [duration]
         end
       end
-    puts @time_estimates
-    puts @time_estimates[1.0]
-    puts "break"
     end
     @raw_data = {iteration_velocity: @countings}
+    puts @time_estimates
   end
 
   def raw_data= new
@@ -93,8 +90,28 @@ class ProjectMetricPivotalTrackerVelocity
 
   def score
     refresh unless @raw_data
-    @time_estimates[1.0].inject(0.0) { |sum, el| sum + el[1.0]} / @time_estimates[1.0].size
-    puts @time_estimates
+    @time_estimates_keys = []
+    @time_estimates_list = []
+    @time_estimates.each do |key, array|
+      puts key
+      if key != 0.0
+        @time_estimates_keys += [key]
+      end
+      @time_estimates_list.push(array)
+    end
+
+    @chart = Gchart.line(:size => '200x300', 
+            :title => "Number of days to complete a story for each point value",
+            :bg => 'efefef',
+            :data => @time_estimates_list,
+            :bar_colors => ['FF0000','00FF00','0FFFF0','0000FF'],
+            :stacked => false, :size => '400x200',
+            :legend => @time_estimates_keys)
+
+    puts @chart
+
+    #@time_estimates[1.0].inject(0.0) { |sum, el| sum + el[1.0]} / @time_estimates[1.0].size
+
   end
 
   private
@@ -120,5 +137,5 @@ p = ProjectMetricPivotalTrackerVelocity.new({:project => 1546415, :token => 'c81
 p.refresh()
 p.score()
 
-json.load(response)
+#json.load(response)
 
